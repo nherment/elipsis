@@ -16,6 +16,6 @@ unit:
 test: unit integration
 
 start:
-	node-dev server.js
+	node server.js
 
 .PHONY: test

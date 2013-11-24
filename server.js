@@ -30,7 +30,7 @@ app.configure(function () {
   app.use(express.static(__dirname + '/public'))
 
   app.use(express.cookieParser())
-  app.use(express.cookieSession({ secret: sessionSecret, cookie: {maxAge: null }}))
+  app.use(express.cookieSession({ secret: sessionSecret, cookie: {maxAge: sessionMaxAge }}))
 //  app.use(express.session({ secret: sessionSecret }))
 //  app.use(express.csrf())
 
