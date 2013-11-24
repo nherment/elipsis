@@ -7,6 +7,7 @@ var optimist              = require('optimist')
 var express               = require('express')
 var toobusy               = require('toobusy')
 var uuid                  = require('uuid')
+var fs                    = require('fs')
 
 var sessionSecret = ConfMgr.readConf('application.sessionSecret') || uuid.v4()
 
@@ -28,7 +29,7 @@ app.configure(function () {
 
   app.use(express.cookieParser())
   app.use(express.cookieSession({ secret: sessionSecret }))
-  app.use(express.session({ secret: sessionSecret }))
+//  app.use(express.session({ secret: sessionSecret }))
 //  app.use(express.csrf())
 
   app.use(express.compress())
@@ -40,7 +41,7 @@ app.configure(function () {
 
 var port = argv.port || process.env.SAFEHOUSE_PORT || 4300
 
-app.listen(port, '::', function() {
+app.listen(port, '0.0.0.0', function() {
   console.log('server listening to http://' + require('os').hostname() + ':' + port)
 })
 
@@ -55,13 +56,43 @@ function secure(req, res) {
 
 
 app.get('/login', function(req, res) {
-  res.sendfile(__dirname + '/public/login.html')
+  if(req.session.email) {
+    res.redirect('/vault')
+  } else {
+    res.sendfile(__dirname + '/public/login.html')
+  }
 })
+
+app.get('/register', function(req, res) {
+  res.sendfile(__dirname + '/public/register.html')
+})
+
 app.get('/logout', function(req, res) {
   if(req.session) {
     req.session = null
   }
-  res.sendfile(__dirname + '/public/login.html')
+  res.redirect('/login')
+})
+
+app.get('/audits/:from/:to', function(req, res) {
+  if(secure(req, res)) {
+    try {
+      var from = parseInt(req.param('from'))
+      var to = parseInt(req.param('to'))
+    } catch(err) {}
+
+    if(from !== undefined && to !== undefined && !isNaN(from) && !isNaN(to)) {
+      AccountManagement.audit(req.session.email, from, to, function(err, audits) {
+        if(err) {
+          res.error(err)
+        } else {
+          res.send(audits)
+        }
+      })
+    } else {
+      res.error(new ClientError(ClientError.BAD_REQUEST, 'expected numbers from and to but got ['+from+'] and ['+to+']'))
+    }
+  }
 })
 
 app.post('/login', function(req, res) {
@@ -72,7 +103,7 @@ app.post('/login', function(req, res) {
     yubikey: req.body.yubikey
   }
 
-  AccountManagement.login(email, credentials, function(err, session) {
+  AccountManagement.login(email, credentials, req.ip, function(err, session) {
     if(err) {
       res.error(err)
     } else {
@@ -86,6 +117,12 @@ app.post('/login', function(req, res) {
 app.get('/vault', function(req, res) {
   if(secure(req, res)) {
     res.sendfile(__dirname + '/public/vault.html')
+  }
+})
+
+app.get('/account', function(req, res) {
+  if(secure(req, res)) {
+    res.sendfile(__dirname + '/public/account.html')
   }
 })
 
@@ -107,7 +144,11 @@ app.post('/vault', function(req, res) {
       if(err) {
         res.error(err)
       } else {
-        res.send(vaultInfo)
+        if(req.query && req.query.redirect) {
+          res.redirect('/vault')
+        } else {
+          res.send(vaultInfo)
+        }
       }
     })
   }
@@ -125,21 +166,25 @@ app.get('/vault/:uid', function(req, res) {
   }
 })
 
-app.delete('/vault/:uid', function(req, res) {
+app.get('/vault/delete/:uid', function(req, res) {
   if(secure(req, res)) {
     VaultManagement.removeVault(req.ip, req.session.email, req.param('uid'), function(err) {
       if(err) {
         res.error(err)
       } else {
-        res.send({status: 'ok'})
+        if(req.query && req.query.redirect) {
+          res.redirect('/vault')
+        } else {
+          res.send({status: 'ok'})
+        }
       }
     })
   }
 })
 
 
-process.on('SIGINT', function() {
-  server.close()
-  toobusy.shutdown()
-  process.exit()
-})
+//process.on('SIGINT', function() {
+//  server.close()
+////  toobusy.shutdown()
+//  process.exit()
+//})

@@ -23,7 +23,7 @@ turtle.template({
 turtle.client({template: 'jQuery'}).
   test({
     path: __dirname + "/client",
-    filter: /.auth\.js$/im
+    filter: /\.onboarding\.client\.js$/im
   });
 
 turtle.run();

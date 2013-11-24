@@ -1,14 +1,14 @@
 {
-  "name": "safe-house",
+  "name": "elipsis",
   "version": "0.1.0",
-  "description": "a safe house for your passwords. Web based.",
+  "description": "a web based vault for your passwords.",
   "main": "server.js",
   "scripts": {
     "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/nherment/safe-house.git"
+    "url": "git://github.com/nherment/elipsis.git"
   },
   "keywords": [
     "password",
@@ -18,7 +18,7 @@
   "author": "Nicolas Herment <nherment@arkhaios.net>",
   "license": "MIT License",
   "bugs": {
-    "url": "https://github.com/nherment/safe-house/issues"
+    "url": "https://github.com/nherment/elipsis/issues"
   },
   "dependencies": {
     "underscore": "1.5.2",

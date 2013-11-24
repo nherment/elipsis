@@ -63,7 +63,6 @@ describe('on-boarding', function() {
 
     $.post( host + '/vault', self.vaultData)
       .done(function(response) {
-        self.vaultInfo = response;
         done()
       })
       .fail(function(xhr, status, error) {
@@ -82,7 +81,7 @@ describe('on-boarding', function() {
         if(!response || response.length !== 1) {
           throw new Error('Expected 1 vault item')
         }
-        self.vaultUid = response[0]
+        self.vaultInfo = response[0]
         done()
       })
       .fail(function(xhr, status, error) {
@@ -95,8 +94,11 @@ describe('on-boarding', function() {
   it('read the created vault', function(done) {
     var self = this
 
-    $.get( host + '/vault/'+self.vaultUid)
+    $.get( host + '/vault/'+self.vaultInfo.uid)
       .done(function(response) {
+        if(response.name !== self.vaultInfo.name) {
+          throw new Error('name mismatch')
+        }
         if(response.name !== self.vaultData.name) {
           throw new Error('name mismatch')
         }
@@ -130,7 +132,7 @@ describe('on-boarding', function() {
 
     var self = this
 
-    $.get( host + '/vault/'+self.vaultUid)
+    $.get( host + '/vault/'+self.vaultInfo.uid)
       .done(function(response) {
         done(new Error('expected 401 on unauthorized vault access but got\n' + JSON.stringify(response)))
       })

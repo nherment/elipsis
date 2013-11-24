@@ -10,7 +10,10 @@ install: dependencies configure
 integration:
 	node test/integration/on_boarding.turtle.js
 
-test: integration
+unit:
+	mocha test/unit/*
+
+test: unit integration
 
 start:
 	node-dev server.js

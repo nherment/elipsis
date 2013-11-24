@@ -9,8 +9,8 @@ function configure(IOHelper, callback) {
   var mongoDBConfig = {
     host: 'localhost',
     port: 27017,
-    name: 'safehouse',
-    user: 'safehouse',
+    name: 'elipsis',
+    user: 'elipsis',
     password: ''
   }
 
@@ -41,7 +41,7 @@ function configure(IOHelper, callback) {
       {dataType: 'int', attr: 'port', message: 'port'},
       {dataType: 'string', attr: 'name', message: 'db name'},
       {dataType: 'string', attr: 'user', message: 'user'},
-      {dataType: 'string', attr: 'password', message: 'password'},
+      {dataType: 'string', attr: 'password', message: 'password'}
     ]
   }
 

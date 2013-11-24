@@ -1,0 +1,68 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'i', '-S', 'linkedin-dust' ]
+2 info using npm@1.2.32
+3 info using node@v0.10.12
+4 verbose read json /Users/nherment/workspace/elipsis/package.json
+5 warn package.json elipsis@0.1.0 No readme data.
+6 verbose read json /Users/nherment/workspace/elipsis/node_modules/express/package.json
+7 verbose read json /Users/nherment/workspace/elipsis/node_modules/minilog/package.json
+8 verbose read json /Users/nherment/workspace/elipsis/node_modules/mocha/package.json
+9 verbose read json /Users/nherment/workspace/elipsis/node_modules/mongodb/package.json
+10 verbose read json /Users/nherment/workspace/elipsis/node_modules/optimist/package.json
+11 verbose read json /Users/nherment/workspace/elipsis/node_modules/serial/package.json
+12 verbose read json /Users/nherment/workspace/elipsis/node_modules/toobusy/package.json
+13 verbose read json /Users/nherment/workspace/elipsis/node_modules/turtle/package.json
+14 verbose read json /Users/nherment/workspace/elipsis/node_modules/underscore/package.json
+15 verbose read json /Users/nherment/workspace/elipsis/node_modules/uuid/package.json
+16 verbose read json /Users/nherment/workspace/elipsis/node_modules/yub/package.json
+17 verbose from cache /Users/nherment/workspace/elipsis/package.json
+18 verbose readDependencies using package.json deps
+19 verbose cache add [ 'linkedin-dust', null ]
+20 verbose cache add name=undefined spec="linkedin-dust" args=["linkedin-dust",null]
+21 verbose parsed url { protocol: null,
+21 verbose parsed url   slashes: null,
+21 verbose parsed url   auth: null,
+21 verbose parsed url   host: null,
+21 verbose parsed url   port: null,
+21 verbose parsed url   hostname: null,
+21 verbose parsed url   hash: null,
+21 verbose parsed url   search: null,
+21 verbose parsed url   query: null,
+21 verbose parsed url   pathname: 'linkedin-dust',
+21 verbose parsed url   path: 'linkedin-dust',
+21 verbose parsed url   href: 'linkedin-dust' }
+22 silly lockFile 054ebfd7-linkedin-dust linkedin-dust
+23 verbose lock linkedin-dust /Users/nherment/.npm/054ebfd7-linkedin-dust.lock
+24 silly lockFile 054ebfd7-linkedin-dust linkedin-dust
+25 silly lockFile 054ebfd7-linkedin-dust linkedin-dust
+26 verbose addNamed [ 'linkedin-dust', '' ]
+27 verbose addNamed [ null, '' ]
+28 silly lockFile 9c073b33-linkedin-dust linkedin-dust@
+29 verbose lock linkedin-dust@ /Users/nherment/.npm/9c073b33-linkedin-dust.lock
+30 silly addNameRange { name: 'linkedin-dust', range: '', hasData: false }
+31 verbose url raw linkedin-dust
+32 verbose url resolving [ 'https://registry.npmjs.org/', './linkedin-dust' ]
+33 verbose url resolved https://registry.npmjs.org/linkedin-dust
+34 info trying registry request attempt 1 at 12:39:09
+35 http GET https://registry.npmjs.org/linkedin-dust
+36 http 404 https://registry.npmjs.org/linkedin-dust
+37 silly registry.get cb [ 404,
+37 silly registry.get   { server: 'CouchDB/1.3.1 (Erlang OTP/R15B03)',
+37 silly registry.get     date: 'Sun, 24 Nov 2013 12:39:11 GMT',
+37 silly registry.get     'content-type': 'application/json',
+37 silly registry.get     'content-length': '52',
+37 silly registry.get     'cache-control': 'must-revalidate' } ]
+38 silly lockFile 9c073b33-linkedin-dust linkedin-dust@
+39 silly lockFile 9c073b33-linkedin-dust linkedin-dust@
+40 error 404 'linkedin-dust' is not in the npm registry.
+40 error 404 You should bug the author to publish it
+40 error 404
+40 error 404 Note that you can also install from a
+40 error 404 tarball, folder, or http url, or git url.
+41 error System Darwin 12.5.0
+42 error command "node" "/usr/local/bin/npm" "i" "-S" "linkedin-dust"
+43 error cwd /Users/nherment/workspace/elipsis
+44 error node -v v0.10.12
+45 error npm -v 1.2.32
+46 error code E404
+47 verbose exit [ 1, true ]

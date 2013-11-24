@@ -43,3 +43,16 @@ body {
 code {
   font-size: 80%;
 }
+
+.vault-secret {
+  border-bottom: solid;
+  border-color: #DDDDDD;
+  border-width: 1px;
+  list-style: none;
+}
+
+.delete {
+  float: right;
+  color: #DDDDDD;
+  font-size: 0.9em;
+}
