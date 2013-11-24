@@ -3,6 +3,7 @@ var AccountManagement     = require('./lib/account/AccountManagement.js')
 var ConfMgr               = require('./install/ConfigurationManager.js')
 var VaultManagement       = require('./lib/account/VaultManagement.js')
 var logger                = require('./lib/util/Logger.js')
+var ClientError           = require('./lib/error/Errors.js').ClientError
 var optimist              = require('optimist')
 var express               = require('express')
 var toobusy               = require('toobusy')
@@ -10,6 +11,7 @@ var uuid                  = require('uuid')
 var fs                    = require('fs')
 
 var sessionSecret = ConfMgr.readConf('application.sessionSecret') || uuid.v4()
+var sessionMaxAge = ConfMgr.readConf('application.sessionMaxAge') || 20*1000
 
 var argv = optimist
   .usage('Usage: $0 --port [num]')
@@ -28,7 +30,7 @@ app.configure(function () {
   app.use(express.static(__dirname + '/public'))
 
   app.use(express.cookieParser())
-  app.use(express.cookieSession({ secret: sessionSecret }))
+  app.use(express.cookieSession({ secret: sessionSecret, cookie: {maxAge: null }}))
 //  app.use(express.session({ secret: sessionSecret }))
 //  app.use(express.csrf())
 
@@ -47,7 +49,7 @@ app.listen(port, '0.0.0.0', function() {
 
 function secure(req, res) {
   if(!req.session || !req.session.email) {
-    res.send(401)
+    res.redirect('/login')
     return false
   } else {
     return true
@@ -60,6 +62,29 @@ app.get('/login', function(req, res) {
     res.redirect('/vault')
   } else {
     res.sendfile(__dirname + '/public/login.html')
+  }
+})
+
+app.post('/account/update', function(req, res) {
+  if(secure(req, res)) {
+
+    var oldPwd = req.oldPassword
+
+    var newPwd = req.newPassword
+    var newPwdConf = req.newPasswordConfirmation
+
+    if(newPwd === newPwdConf) {
+
+      AccountManagement.update(req.session.email, req.body, function(err) {
+        if(err) {
+          res.error(err)
+        } else {
+          res.redirect('/logout')
+        }
+      })
+    } else {
+      res.error(new ClientError(ClientError.BAD_REQUEST, 'password confirmation is not the same as the password'))
+    }
   }
 })
 
@@ -160,7 +185,7 @@ app.get('/vault/:uid', function(req, res) {
       if(err) {
         res.error(err)
       } else {
-        res.send(vaultData)
+        res.send(vaultData.secret)
       }
     })
   }
