@@ -3,7 +3,7 @@ About
 
 Elipsis is an online  password management tool.
 
-How does it works ?
+How does it work ?
 ===================
 
 Elipsis encrypts all your other passwords based on a single one. This is better security as because you can:
