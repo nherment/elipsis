@@ -9,6 +9,22 @@ var express               = require('express')
 var toobusy               = require('toobusy')
 var uuid                  = require('uuid')
 var fs                    = require('fs')
+var RedisStore            = require('connect-redis')(express)
+var cluster               = require('cluster')
+
+var numCPUs = require('os').cpus().length;
+
+if (cluster.isMaster) {
+
+  for (var i = 0; i < numCPUs; i++) {
+    cluster.fork()
+  }
+
+  cluster.on('exit', function(worker, code, signal) {
+    logger.info('worker ' + worker.process.pid + ' died')
+  })
+  return;
+}
 
 var sessionSecret = ConfMgr.readConf('application.sessionSecret') || uuid.v4()
 var sessionMaxAge = ConfMgr.readConf('application.sessionMaxAge') || 20*1000
@@ -29,9 +45,8 @@ app.configure(function () {
   })
   app.enable('trust proxy')
   app.use(express.static(__dirname + '/public'))
-
   app.use(express.cookieParser())
-  app.use(express.cookieSession({ secret: sessionSecret, cookie: {maxAge: sessionMaxAge }}))
+  app.use(express.cookieSession({ store: new RedisStore({}), secret: sessionSecret, cookie: {maxAge: sessionMaxAge }}))
 //  app.use(express.session({ secret: sessionSecret }))
 //  app.use(express.csrf())
 

@@ -3,3 +3,5 @@ node_modules
 /conf/
 
 .DS_Store
+
+npm-debug.log
