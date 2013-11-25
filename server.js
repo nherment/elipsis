@@ -27,6 +27,7 @@ app.configure(function () {
       next()
     }
   })
+  app.enable('trust proxy')
   app.use(express.static(__dirname + '/public'))
 
   app.use(express.cookieParser())
@@ -43,7 +44,7 @@ app.configure(function () {
 
 var port = argv.port || process.env.SAFEHOUSE_PORT || 4300
 
-app.listen(port, '0.0.0.0', function() {
+app.listen(port, '127.0.0.1', function() {
   console.log('server listening to http://' + require('os').hostname() + ':' + port)
 })
 

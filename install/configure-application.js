@@ -13,7 +13,8 @@ function configure(IOHelper, callback) {
     port: 3000,
     resetPasswordTimeout: (24 * 3600 * 1000), // 24hrs
     sessionSecret: uuid.v4(),
-    sessionMaxAge: 20*1000
+    sessionMaxAge: 20*1000,
+    encryptionPwd: uuid.v4()
   }
 
   if(conf.application) {
@@ -34,6 +35,9 @@ function configure(IOHelper, callback) {
     }
     if(conf.application.sessionMaxAge) {
       appConfig.sessionMaxAge = conf.application.sessionMaxAge
+    }
+    if(conf.application.encryptionPwd) {
+      appConfig.encryptionPwd = conf.application.encryptionPwd
     }
   }
 

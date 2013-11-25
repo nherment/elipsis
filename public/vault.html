@@ -55,7 +55,7 @@
                 <label class="sr-only" for="secret">Secret</label>
                 <input type="text" class="form-control" id="secret" name="secret" placeholder="Secret" autocomplete="off">
             </div>
-            <button class="btn btn-default">generate</button>
+            <button id="generateSecretBtn" class="btn btn-default">generate</button>
             <button type="submit" class="btn btn-primary">Add</button>
         </form>
         <div class="page-header">
@@ -78,27 +78,44 @@
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="/js/jquery-2.0.3.js"></script>
 <script src="/js/bootstrap.min.js"></script>
+<script src="/js/MakePassword.js"></script>
 
 <script type="application/javascript">
-    $.get('/vaults')
-        .done(function(vaults) {
-            $('#vaultList').html('')
-            if(vaults && vaults.length > 0) {
-                for(var i = 0 ; i < vaults.length ; i++) {
-                    var listItem = $('<li class="vault-secret"></li>')
-                    var viewLink = $('<a href="/vault/'+vaults[i].uid+'">'+vaults[i].name+'</a>')
-                    var deleteLink = $('<a href="/vault/delete/'+vaults[i].uid+'?redirect=1" class="delete">delete</a>')
-                    listItem.append(viewLink)
-                    listItem.append(deleteLink)
-                    $('#vaultList').append(listItem)
-                }
-            } else {
-                $('#vaultList').html("You don't have any secret yet, add your first one !")
+    $( document ).ready(function() {
+        $.get('/vaults')
+                .done(function(vaults) {
+                    $('#vaultList').html('')
+                    if(vaults && vaults.length > 0) {
+                        for(var i = 0 ; i < vaults.length ; i++) {
+                            var listItem = $('<li class="vault-secret"></li>')
+                            var viewLink = $('<a href="/vault/'+vaults[i].uid+'">'+vaults[i].name+'</a>')
+                            var deleteLink = $('<a href="/vault/delete/'+vaults[i].uid+'?redirect=1" class="delete">delete</a>')
+                            listItem.append(viewLink)
+                            listItem.append(deleteLink)
+                            $('#vaultList').append(listItem)
+                        }
+                    } else {
+                        $('#vaultList').html("You don't have any secret yet, add your first one !")
+                    }
+                })
+                .fail(function(xhr, status, error) {
+                    $('#vaultList').html(error)
+                })
+
+        $('#generateSecretBtn').click(function(event) {
+//            alert('there was an error')
+            try {
+                var pwd = $.generatePassword(20, false)
+                console.log(pwd)
+            } catch(err) {
+                console.log(err)
             }
+            $('#secret').val(pwd)
+            event.preventDefault();
+            return false;
         })
-        .fail(function(xhr, status, error) {
-            $('#vaultList').html(error)
-        })
+    })
+
 </script>
 </body>
 </html>
