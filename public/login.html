@@ -20,13 +20,14 @@
 <body>
 
 <div class="container">
+    <a href="/">go back home</a>
 
     <form class="form-signin" action="/login" method="post">
-        <h2 class="form-signin-heading">Please sign in</h2>
+        <h2 class="form-signin-heading">Sign in</h2>
         <input type="text" name="email" class="form-control" placeholder="Email address" required autofocus>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
-        <input type="password" name="yubikey" class="form-control" placeholder="Yubikey (optional)">
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <a href="/register" class="pull-right">... or sign up</a>
     </form>
 
 </div> <!-- /container -->

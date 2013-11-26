@@ -112,7 +112,7 @@ app.get('/logout', function(req, res) {
   if(req.session) {
     req.session = null
   }
-  res.redirect('/login')
+  res.redirect('/')
 })
 
 app.get('/audits/:from/:to', function(req, res) {
