@@ -12,11 +12,21 @@ var fs                    = require('fs')
 var RedisStore            = require('connect-redis')(express)
 var cluster               = require('cluster')
 
-var numCPUs = require('os').cpus().length;
 
-if (cluster.isMaster) {
+var argv = optimist
+  .usage('Usage: $0 --port [num] --workers [num]')
+  .options('p', {
+    alias : 'port'
+  })
+  .options('w', {
+    alias : 'workers',
+    default : require('os').cpus().length
+  })
+  .argv
 
-  for (var i = 0; i < numCPUs; i++) {
+if (argv.workers > 1 && cluster.isMaster) {
+
+  for (var i = 0; i < argv.workers; i++) {
     cluster.fork()
   }
 
@@ -28,10 +38,6 @@ if (cluster.isMaster) {
 
 var sessionSecret = ConfMgr.readConf('application.sessionSecret') || uuid.v4()
 var sessionMaxAge = ConfMgr.readConf('application.sessionMaxAge') || 20*1000
-
-var argv = optimist
-  .usage('Usage: $0 --port [num]')
-  .argv
 
 var app = express()
 
@@ -95,7 +101,7 @@ app.post('/account/update', function(req, res) {
         if(err) {
           res.error(err)
         } else {
-          res.redirect('/logout')
+          res.redirect('/logout?redirect=login')
         }
       })
     } else {
@@ -108,11 +114,19 @@ app.get('/register', function(req, res) {
   res.sendfile(__dirname + '/public/register.html')
 })
 
+app.get('/contact', function(req, res) {
+  res.sendfile(__dirname + '/public/contact.html')
+})
+
 app.get('/logout', function(req, res) {
   if(req.session) {
     req.session = null
   }
-  res.redirect('/')
+  if(req.query && req.query.redirect === 'login') {
+    res.redirect('/login')
+  } else {
+    res.redirect('/')
+  }
 })
 
 app.get('/audits/:from/:to', function(req, res) {

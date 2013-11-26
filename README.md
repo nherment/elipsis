@@ -1,7 +1,15 @@
 About
 =====
 
-Elipsis is an online  password management tool.
+Elipsis is an online password management tool. It acts as a vault so that you don't have to remember a password for each
+web service you use (Google, Facebook, etc.).
+
+Since you don't know what security these services employ, it is very important to use a different and secure password
+for each of them.
+
+Elipsis allows you to do that very easily. You choose one very strong password and rely on elipsis to keep all your
+secret safe. You can do that because elipsis is open source.
+
 
 How does it work ?
 ===================
