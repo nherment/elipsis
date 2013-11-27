@@ -14,7 +14,8 @@ function configure(IOHelper, callback) {
     resetPasswordTimeout: (24 * 3600 * 1000), // 24hrs
     sessionSecret: uuid.v4(),
     sessionMaxAge: 20*1000,
-    encryptionPwd: uuid.v4()
+    encryptionPwd: uuid.v4(),
+    websiteUrl: 'https://elipsis.io'
   }
 
   if(conf.application) {
@@ -39,6 +40,9 @@ function configure(IOHelper, callback) {
     if(conf.application.encryptionPwd) {
       appConfig.encryptionPwd = conf.application.encryptionPwd
     }
+    if(conf.application.websiteUrl) {
+      appConfig.websiteUrl = conf.application.websiteUrl
+    }
   }
 
   var opts = {
@@ -52,7 +56,8 @@ function configure(IOHelper, callback) {
       {dataType: 'int', attr: 'resetPasswordTimeout', message: 'Timeout for password reset validation (ms)'},
       {dataType: 'string', attr: 'sessionSecret', message: 'Session secret'},
       {dataType: 'int', attr: 'sessionMaxAge', message: 'Session timeout'},
-      {dataType: 'string', attr: 'encryptionPwd', message: 'App level encryption password'}
+      {dataType: 'string', attr: 'encryptionPwd', message: 'App level encryption password'},
+      {dataType: 'string', attr: 'websiteUrl', message: 'The website\'s url. Must end with a /'}
     ]
   }
 

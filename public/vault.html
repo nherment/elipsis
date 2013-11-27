@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
+    <link rel="shortcut icon" href="/favicon.ico" />
 
     <title>Elipsis (vault)</title>
 
@@ -32,7 +32,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/">Elipsis</a>
+                <a class="navbar-brand" href="/"><img src="images/icon-white.gif"/> Elipsis</a>
             </div>
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
@@ -77,23 +77,105 @@
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="/js/jquery-2.0.3.js"></script>
+<script src="/js/jquery-ui-1.9.2.custom.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/MakePassword.js"></script>
 
 <script type="application/javascript">
     $( document ).ready(function() {
+
         $.get('/vaults')
                 .done(function(vaults) {
                     $('#vaultList').html('')
                     if(vaults && vaults.length > 0) {
                         for(var i = 0 ; i < vaults.length ; i++) {
+                            var vault = vaults[i]
                             var listItem = $('<li class="vault-secret"></li>')
-                            var viewLink = $('<a href="/vault/'+vaults[i].uid+'">'+vaults[i].name+'</a>')
-                            var deleteLink = $('<a href="/vault/delete/'+vaults[i].uid+'?redirect=1" class="delete">delete</a>')
+                            var viewLink = $('<a href="/vault/'+vault.uid+'">'+vault.name+'</a>')
+                            var passwordPlaceHolder = $('<input type="text" class="secret-placeholder" readonly/>')
+                            var spinner = $('<img src="images/spinner.gif" alt="loading...">')
+                            var buttons = $('<div style="float: right;"></div>')
+                            var viewButton = $('<button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-eye-open"></span> view</button>')
+                            var hideButton = $('<button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-eye-close"></span> hide</button>')
+                            var deleteLink = $('<a href="/vault/delete/'+vault.uid+'?redirect=1" class="delete">delete</a>')
                             listItem.append(viewLink)
-                            listItem.append(deleteLink)
-                            $('#vaultList').append(listItem)
+                            listItem.append(buttons)
+                            buttons.append(passwordPlaceHolder)
+                            buttons.append(spinner)
+                            buttons.append(viewButton)
+                            buttons.append(hideButton)
+                            buttons.append(deleteLink)
+
+                            spinner.hide()
+                            hideButton.hide()
+                            passwordPlaceHolder.hide()
+
+                            $('#vaultList').append(listItem);
+
+                            (function(vault, spinner, viewButton, hideButton, passwordPlaceHolder, deleteLink, listItem) {
+                                deleteLink.click(function() {
+                                    listItem.hide('drop')
+                                    $.get('/vault/delete/'+vault.uid)
+                                        .done(function() {
+                                        })
+                                        .fail(function(xhr) {
+                                            if(xhr.statusCode !== 404) {
+                                                listItem.show('pulsate')
+                                                deleteLink.text('[ERROR] Could not delete. Try again')
+                                            }
+                                        })
+                                    return false
+                                })
+                                viewButton.click(function() {
+                                    viewButton.hide()
+                                    hideButton.hide()
+
+                                    if(passwordPlaceHolder.val()) {
+                                        hideButton.show()
+                                        passwordPlaceHolder.show()
+                                        if(!passwordPlaceHolder.hasClass('error')) {
+                                            passwordPlaceHolder.focus()
+                                            passwordPlaceHolder.select()
+                                        }
+                                    } else {
+                                        spinner.show()
+                                        $.get('/vault/'+vault.uid)
+                                            .done(function(password) {
+                                                spinner.hide()
+                                                viewButton.hide()
+                                                hideButton.show()
+                                                if(password) {
+                                                    passwordPlaceHolder.val(password)
+                                                    passwordPlaceHolder.show()
+                                                    passwordPlaceHolder.focus()
+                                                    passwordPlaceHolder.select()
+                                                } else {
+                                                    passwordPlaceHolder.addClass('error')
+                                                    passwordPlaceHolder.val('this secret is empty')
+                                                    passwordPlaceHolder.show()
+                                                }
+                                            })
+                                            .fail(function() {
+                                                hideButton.hide()
+                                                spinner.hide()
+                                                passwordPlaceHolder.val('There was an error while retrieving your password')
+                                                passwordPlaceHolder.addClass('error')
+                                                passwordPlaceHolder.show()
+                                            })
+                                    }
+                                })
+                                hideButton.click(function() {
+                                    hideButton.hide()
+                                    viewButton.show()
+                                    passwordPlaceHolder.hide()
+                                })
+                            })(vault, spinner, viewButton, hideButton, passwordPlaceHolder, deleteLink, listItem);
+
+
                         }
+
+
+
                     } else {
                         $('#vaultList').html("You don't have any secret yet, add your first one !")
                     }

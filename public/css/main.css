@@ -49,10 +49,27 @@ code {
   border-color: #DDDDDD;
   border-width: 1px;
   list-style: none;
+  line-height: 30px;
+}
+
+.secret-placeholder {
+  margin: 0px 20px 0px 10px;
+  padding: 0px;
+  border-style: none;
+  height: 25px;
+  min-width: 200px;
+}
+.secret-placeholder:focus {
+  outline: none;
+}
+.secret-placeholder.error {
+  color: #A51605;
 }
 
 .delete {
-  float: right;
   color: #DDDDDD;
   font-size: 0.9em;
+}
+.navbar > .container .navbar-brand {
+  padding: 5px 15px 0px 0px;
 }

@@ -1,6 +1,5 @@
 
-var SerialRunner = require('serial').SerialRunner
-
+var SerialRunner  = require('serial').SerialRunner
 /**
  *
  * @param options

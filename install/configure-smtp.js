@@ -8,6 +8,7 @@ function configure(IOHelper, callback) {
   var conf = ConfMgr.readConf()
 
   var appConfig = {
+    from: '"Full Name" <user@domain.tld>',
     hostname: 'localhost',
     port: 465,
     secure: true,
@@ -16,6 +17,9 @@ function configure(IOHelper, callback) {
   }
 
   if(conf.smtp) {
+    if(conf.smtp.from) {
+      appConfig.from = conf.smtp.from
+    }
     if(conf.smtp.hostname) {
       appConfig.hostname = conf.smtp.hostname
     }
@@ -38,12 +42,12 @@ function configure(IOHelper, callback) {
     default: appConfig,
     confirm: true,
     entries: [
-      {dataType: 'boolean', attr: 'enabled', message: 'Enable smtp'},
-      {dataType: 'string', attr: 'smtpHost', message: 'Hostname'},
-      {dataType: 'int', attr: 'smtpPort', message: 'Port'},
-      {dataType: 'boolean', attr: 'smtpSecure', message: 'SSL'},
-      {dataType: 'string', attr: 'smtpUser', message: 'Username'},
-      {dataType: 'string', attr: 'smtpPass', message: 'Password'}
+      {dataType: 'string', attr: 'from', message: 'Sender email'},
+      {dataType: 'string', attr: 'hostname', message: 'Hostname'},
+      {dataType: 'int', attr: 'port', message: 'Port'},
+      {dataType: 'boolean', attr: 'secure', message: 'SSL'},
+      {dataType: 'string', attr: 'user', message: 'Username'},
+      {dataType: 'string', attr: 'password', message: 'Password'}
     ]
   }
 

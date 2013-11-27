@@ -9,7 +9,10 @@ function configure(IOHelper, callback) {
 
   var appConfig = {
     notifOnLogin: true,
-    notifOnPwdChange: true
+    notifOnPwdChange: true,
+    niceName: 'the elipsis team',
+    adminEmail: 'user@domain.tld'
+
   }
 
   if(conf.notifications) {
@@ -19,6 +22,12 @@ function configure(IOHelper, callback) {
     if(conf.notifications.notifOnPwdChange) {
       appConfig.notifOnPwdChange = conf.notifications.notifOnPwdChange
     }
+    if(conf.notifications.niceName) {
+      appConfig.niceName = conf.notifications.niceName
+    }
+    if(conf.notifications.adminEmail) {
+      appConfig.adminEmail = conf.notifications.adminEmail
+    }
   }
 
   var opts = {
@@ -27,7 +36,9 @@ function configure(IOHelper, callback) {
     confirm: true,
     entries: [
       {dataType: 'boolean', attr: 'notifOnLogin', message: 'Notify user on login'},
-      {dataType: 'boolean', attr: 'notifOnPwdChange', message: 'Notify user on password change'}
+      {dataType: 'boolean', attr: 'notifOnPwdChange', message: 'Notify user on password change'},
+      {dataType: 'string', attr: 'niceName', message: 'A nice name that ends the email messages'},
+      {dataType: 'string', attr: 'adminEmail', message: 'An email to receive admin notifications'}
     ]
   }
 

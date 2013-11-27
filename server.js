@@ -12,6 +12,7 @@ var fs                    = require('fs')
 var RedisStore            = require('connect-redis')(express)
 var cluster               = require('cluster')
 
+ConfMgr.checkUpdates()
 
 var argv = optimist
   .usage('Usage: $0 --port [num] --workers [num]')
@@ -37,7 +38,7 @@ if (argv.workers > 1 && cluster.isMaster) {
 }
 
 var sessionSecret = ConfMgr.readConf('application.sessionSecret') || uuid.v4()
-var sessionMaxAge = ConfMgr.readConf('application.sessionMaxAge') || 20*1000
+var sessionMaxAge = ConfMgr.readConf('application.sessionMaxAge') || 60*1000
 
 var app = express()
 
@@ -49,6 +50,7 @@ app.configure(function () {
       next()
     }
   })
+  app.use(express.favicon(__dirname + '/public/images/favicon.ico'));
   app.enable('trust proxy')
   app.use(express.static(__dirname + '/public'))
   app.use(express.cookieParser())
@@ -87,6 +89,52 @@ app.get('/login', function(req, res) {
   }
 })
 
+app.post('/login', function(req, res) {
+  var email = req.body.email
+
+  var credentials = {
+    password: req.body.password,
+    activationToken: req.body.activationToken,
+    yubikey: req.body.yubikey
+  }
+
+  AccountManagement.login(email, credentials, req.ip, function(err, session) {
+    if(err) {
+      res.error(err)
+    } else {
+      req.session.email = session.email
+      req.session.hash  = session.hash
+      res.redirect('/vault')
+    }
+  })
+})
+
+app.get('/register', function(req, res) {
+  res.sendfile(__dirname + '/public/register.html')
+})
+
+app.post('/register', function(req, res) {
+  var email = req.body.email
+
+  var credentials = {
+    password: req.body.password,
+    activationToken: req.body.activationToken,
+    yubikey: req.body.yubikey
+  }
+
+  AccountManagement.register(email, credentials, req.ip, function(err, session) {
+    if(err) {
+      res.error(err)
+    } else {
+      res.redirect('/registered')
+    }
+  })
+})
+
+app.get('/registered', function(req, res) {
+  res.sendfile(__dirname + '/public/registered.html')
+})
+
 app.post('/account/update', function(req, res) {
   if(secure(req, res)) {
 
@@ -108,10 +156,6 @@ app.post('/account/update', function(req, res) {
       res.error(new ClientError(ClientError.BAD_REQUEST, 'password confirmation is not the same as the password'))
     }
   }
-})
-
-app.get('/register', function(req, res) {
-  res.sendfile(__dirname + '/public/register.html')
 })
 
 app.get('/contact', function(req, res) {
@@ -148,25 +192,6 @@ app.get('/audits/:from/:to', function(req, res) {
       res.error(new ClientError(ClientError.BAD_REQUEST, 'expected numbers from and to but got ['+from+'] and ['+to+']'))
     }
   }
-})
-
-app.post('/login', function(req, res) {
-  var email = req.body.email
-
-  var credentials = {
-    password: req.body.password,
-    yubikey: req.body.yubikey
-  }
-
-  AccountManagement.login(email, credentials, req.ip, function(err, session) {
-    if(err) {
-      res.error(err)
-    } else {
-      req.session.email = session.email
-      req.session.hash  = session.hash
-      res.redirect('/vault')
-    }
-  })
 })
 
 app.get('/vault', function(req, res) {

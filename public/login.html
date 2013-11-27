@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Elipsis is an online password vault.">
     <meta name="author" content="">
-    <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico" />
 
-    <title>Elipsis</title>
+    <title>Elipsis (sign in)</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.css" rel="stylesheet">
@@ -28,14 +27,15 @@
             <li><a href="/register">Register</a></li>
             <li class="active"><a href="/login">Login</a></li>
         </ul>
-        <h3 class="text-muted">Elipsis</h3>
+        <h3 class="text-muted"><img src="/images/icon.gif"/> Elipsis</h3>
     </div>
 
     <div class="row marketing">
         <form class="form-signin" action="/login" method="post">
-            <h2 class="form-signin-heading">Sign in</h2>
-            <input type="text" name="email" class="form-control" placeholder="Email address" required autofocus>
-            <input type="password" name="password" class="form-control" placeholder="Password" required>
+            <h2 id="sign-in-title" class="form-signin-heading">Sign in</h2>
+            <input type="text" id="email" name="email" class="form-control" placeholder="Email address" required autofocus>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+            <input type="hidden" id="activationToken" name="activationToken" class="form-control" placeholder="Token (for account activation only)">
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
             <a href="/register" class="pull-right">... or sign up</a>
         </form>
@@ -53,6 +53,19 @@
 
 </div> <!-- /container -->
 
+<script src="/js/jquery-2.0.3.js"></script>
+<script src="/js/purl.js"></script>
+<script type="application/javascript">
+
+    $(document).ready(function() {
+        var url = $.url();
+        if(url.param('token')) {
+            $('#sign-in-title').html('Sign in to validate your account')
+            $('#activationToken').val(url.param('token'))
+        }
+    })
+
+</script>
 
 <!-- Bootstrap core JavaScript
 ================================================== -->

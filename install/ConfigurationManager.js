@@ -1,7 +1,9 @@
 var fs = require('fs')
-
+var semver = require('semver')
 
 var CONF_FILE = __dirname + '/../conf/conf.json'
+
+var VERSION = 1
 
 function readConf(path) {
 
@@ -48,7 +50,23 @@ function merge(from, to) {
   }
 }
 
+function checkUpdates() {
+  var confVersion = readConf('version')
+  if(!confVersion || confVersion < VERSION) {
+    throw new Error('The configuration is not up to date. Please run `make configure`.')
+  } else {
+    console.log('configuration file up to date')
+  }
+}
+
+function stampVersion() {
+  mergeConf({version: VERSION})
+}
+
 module.exports = {
   readConf: readConf,
-  mergeConf: mergeConf
+  mergeConf: mergeConf,
+  checkUpdates: checkUpdates,
+  stampVersion: stampVersion,
+  VERSION: VERSION
 }
