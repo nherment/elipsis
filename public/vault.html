@@ -113,7 +113,24 @@
                             $('#vaultList').append(listItem);
 
                             (function(vault, spinner, viewButton, hideButton, passwordPlaceHolder, deleteLink, listItem) {
+                                var deleteClickCount = 0
+                                var deleteTimeout
+
                                 deleteLink.click(function() {
+                                    if(deleteClickCount === 0) {
+                                        deleteClickCount = 1
+                                        deleteLink.html('confirm')
+                                        deleteTimeout = setTimeout(function() {
+                                            deleteTimeout = null
+                                            deleteClickCount = 0
+                                            deleteLink.html('delete')
+                                        }, 2000)
+                                        return false;
+                                    }
+                                    if(deleteTimeout) {
+                                        clearTimeout(deleteTimeout)
+                                    }
+
                                     listItem.hide('drop')
                                     $.get('/vault/delete/'+vault.uid)
                                         .done(function() {
