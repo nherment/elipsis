@@ -85,3 +85,7 @@ input {
     border-bottom: 0;
   }
 }
+
+.center-text {
+  text-align: center;
+}

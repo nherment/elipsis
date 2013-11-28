@@ -162,6 +162,10 @@ app.get('/contact', function(req, res) {
   res.sendfile(__dirname + '/public/contact.html')
 })
 
+app.get('/pricing', function(req, res) {
+  res.sendfile(__dirname + '/public/pricing.html')
+})
+
 app.get('/logout', function(req, res) {
   if(req.session) {
     req.session = null

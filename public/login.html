@@ -23,6 +23,7 @@
     <div class="header">
         <ul class="nav nav-pills pull-right">
             <li><a href="/">Home</a></li>
+            <li><a href="/pricing">Pricing</a></li>
             <li><a href="/contact">Contact</a></li>
             <li><a href="/register">Register</a></li>
             <li class="active"><a href="/login">Login</a></li>
@@ -34,8 +35,8 @@
         <form class="form-signin" action="/login" method="post">
             <h2 id="sign-in-title" class="form-signin-heading">Sign in</h2>
             <input type="text" id="email" name="email" class="form-control" placeholder="Email address" required autofocus>
-            <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
-            <input type="hidden" id="activationToken" name="activationToken" class="form-control" placeholder="Token (for account activation only)">
+            <input type="password" id="password" name="password" class="form-control" placeholder="Password" autocomplete="off" required>
+            <input type="hidden" id="activationToken" name="activationToken" class="form-control" autocomplete="off" placeholder="Token (for account activation only)">
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
             <a href="/register" class="pull-right">... or sign up</a>
         </form>
