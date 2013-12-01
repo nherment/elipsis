@@ -1,3 +1,64 @@
+
+@font-face {
+  font-family: 'arizonia';
+  src: url('../fonts/arizonia/arizonia-regular-webfont.eot');
+  src: url('../fonts/arizonia/arizonia-regular-webfont.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/arizonia/arizonia-regular-webfont.woff') format('woff'),
+  url('../fonts/arizonia/arizonia-regular-webfont.ttf') format('truetype'),
+  url('../fonts/arizonia/arizonia-regular-webfont.svg#arizoniaregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+@font-face {
+  font-family: 'goodfoot';
+  src: url('../fonts/goodfoot/goodfoot-webfont.eot');
+  src: url('../fonts/goodfoot/goodfoot-webfont.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/goodfoot/goodfoot-webfont.woff') format('woff'),
+  url('../fonts/goodfoot/goodfoot-webfont.ttf') format('truetype'),
+  url('../fonts/goodfoot/goodfoot-webfont.svg#good_footregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+@font-face {
+  font-family: 'boycott';
+  src: url('../fonts/boycott/boycott-webfont.eot');
+  src: url('../fonts/boycott/boycott-webfont.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/boycott/boycott-webfont.woff') format('woff'),
+  url('../fonts/boycott/boycott-webfont.ttf') format('truetype'),
+  url('../fonts/boycott/boycott-webfont.svg#boycottregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+@font-face {
+  font-family: '1942report';
+  src: url('../fonts/1942report/1942-webfont.eot');
+  src: url('../fonts/1942report/1942-webfont.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/1942report/1942-webfont.woff') format('woff'),
+  url('../fonts/1942report/1942-webfont.ttf') format('truetype'),
+  url('../fonts/1942report/1942-webfont.svg#1942_report1942_report') format('svg');
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+@font-face {
+  font-family: 'calligraffiti';
+  src: url('../fonts/calligraffiti/Calligraffiti-webfont.eot');
+  src: url('../fonts/calligraffiti/Calligraffiti-webfont.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/calligraffiti/Calligraffiti-webfont.woff') format('woff'),
+  url('../fonts/calligraffiti/Calligraffiti-webfont.ttf') format('truetype'),
+  url('../fonts/calligraffiti/Calligraffiti-webfont.svg#calligraffitiregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+
+}
+
 /* Space out content a bit */
 body {
   padding-top: 20px;
@@ -5,7 +66,20 @@ body {
   text-align: justify;
 }
 
+h3 img {
+  vertical-align: text-top;
+}
 
+h3, h3 a, h3 a:hover, h3 a:visited {
+  font-family: "calligraffiti", "Arial";
+  font-size: 40px;
+  margin: 0px;
+  margin-top: 0px;
+  padding: 0px;
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+}
 
 /* Everything but the jumbotron gets side spacing for mobile first views */
 .header,
