@@ -38,6 +38,7 @@
                 <ul class="nav navbar-nav">
                     <li><a href="/vault">Vault</a></li>
                     <li class="active"><a href="/account">Account</a></li>
+                    <li><a href="/subscription">Subscription</a></li>
                     <li><a href="/logout">Logout</a></li>
                 </ul>
             </div><!--/.nav-collapse -->
@@ -73,41 +74,7 @@
                     <!--</div>-->
                     <button type="submit" class="btn btn-primary pull-right">Save Changes</button>
                 </form>
-                <div class="page-header">
-                    <h2>Subscription</h2>
-                </div>
 
-
-                <form role="form" action="/subscribe" method="post">
-                    <div class="form-group">
-                        <label>Card number</label>
-                        <input type="text" id="number" size="30" autocomplete="off" class="form-control"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="cvc">CVC</label>
-                        <input type="text" id="cvc" size="4" autocomplete="off" class="form-control"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="contactText">Expiration (MM/YYYY)</label>
-                        <input type="text" name="expiration-date" size="7" class="form-control"/>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="plan">Your plan </label>
-                        <div id="plan" class="btn-group">
-                            <button type="button" class="btn btn-default">Free</button>
-                            <button type="button" class="btn btn-default">Gold</button>
-                            <!--<button type="button" class="btn btn-default disabled">Platinum</button>-->
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-danger btn-sm active">delete credit card</button>
-
-                    <button type="submit" class="btn btn-primary pull-right">Save changes</button>
-                </form>
-
-                <div id="error" class="hidden"></div>
-                <div id="success" class="hidden">Thanks for subscribing at elipsis.io!</div>
                 <div class="page-header">
                     <h2>Contact us</h2>
                 </div>
@@ -151,34 +118,35 @@
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="/js/jquery-2.0.3.js"></script>
 <script src="js/bootstrap.min.js"></script>
-<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="application/javascript">
 
+    $(document).ready(function() {
+        $.get('/audits/0/50')
+                .done(function(audits) {
+                    $('#audits').html('')
 
-    $.get('/audits/0/50')
-        .done(function(audits) {
-            $('#audits').html('')
+                    if(audits && audits.length > 0) {
+                        for(var i = 0 ; i < audits.length ; i++) {
 
-            if(audits && audits.length > 0) {
-                for(var i = 0 ; i < audits.length ; i++) {
+                            var row = $('<tr></tr>')
 
-                    var row = $('<tr></tr>')
+                            var date = $('<td>'+audits[i].date+'</td>')
+                            var ip = $('<td>'+audits[i].ip+'</td>')
+                            var action = $('<td>'+audits[i].action+'</td>')
 
-                    var date = $('<td>'+audits[i].date+'</td>')
-                    var ip = $('<td>'+audits[i].ip+'</td>')
-                    var action = $('<td>'+audits[i].action+'</td>')
+                            row.append(date)
+                            row.append(ip)
+                            row.append(action)
 
-                    row.append(date)
-                    row.append(ip)
-                    row.append(action)
+                            $('#audits').append(row)
+                        }
+                    }
+                })
+                .fail(function(xhr, status, error) {
+                    $('#audits').html('' + error)
+                })
 
-                    $('#audits').append(row)
-                }
-            }
-        })
-        .fail(function(xhr, status, error) {
-            $('#audits').html('' + error)
-        })
+    })
 
 </script>
 </body>

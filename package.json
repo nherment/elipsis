@@ -36,6 +36,8 @@
     "connect-redis": "1.4.6",
     "date-format-lite": "0.5.0",
     "semver": "2.2.1",
-    "stripe": "2.2.2"
+    "stripe": "2.2.2",
+    "express-namespace": "~0.1.1",
+    "tracer": "~0.6.1"
   }
 }

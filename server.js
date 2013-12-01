@@ -1,16 +1,17 @@
-var HttpResponseAugmenter = require('./lib/error/HttpResponseAugmenter.js')
-var AccountManagement     = require('./lib/account/AccountManagement.js')
-var ConfMgr               = require('./install/ConfigurationManager.js')
-var VaultManagement       = require('./lib/account/VaultManagement.js')
-var logger                = require('./lib/util/Logger.js')
-var ClientError           = require('./lib/error/Errors.js').ClientError
-var optimist              = require('optimist')
-var express               = require('express')
-var toobusy               = require('toobusy')
-var uuid                  = require('uuid')
-var fs                    = require('fs')
-var RedisStore            = require('connect-redis')(express)
-var cluster               = require('cluster')
+var SubscriptionManagement  = require('./lib/subscription/SubscriptionManagement.js')
+var HttpResponseAugmenter   = require('./lib/error/HttpResponseAugmenter.js')
+var AccountManagement       = require('./lib/account/AccountManagement.js')
+var ConfMgr                 = require('./install/ConfigurationManager.js')
+var VaultManagement         = require('./lib/account/VaultManagement.js')
+var logger                  = require('./lib/util/Logger.js')
+var ClientError             = require('./lib/error/Errors.js').ClientError
+var optimist                = require('optimist')
+var express                 = require('express')
+var toobusy                 = require('toobusy')
+var uuid                    = require('uuid')
+var fs                      = require('fs')
+var RedisStore              = require('connect-redis')(express)
+var cluster                 = require('cluster')
 
 ConfMgr.checkUpdates()
 
@@ -144,7 +145,7 @@ app.post('/account/update', function(req, res) {
     var newPwdConf = req.newPasswordConfirmation
 
     if(newPwd === newPwdConf) {
-
+      // TODO: pass IP address and log it
       AccountManagement.update(req.session.email, req.body, function(err) {
         if(err) {
           res.error(err)
@@ -209,6 +210,11 @@ app.get('/account', function(req, res) {
     res.sendfile(__dirname + '/public/account.html')
   }
 })
+app.get('/subscription', function(req, res) {
+  if(secure(req, res)) {
+    res.sendfile(__dirname + '/public/subscription.html')
+  }
+})
 
 app.get('/vaults', function(req, res) {
   if(secure(req, res)) {
@@ -258,6 +264,39 @@ app.get('/vault/delete/:uid', function(req, res) {
       } else {
         if(req.query && req.query.redirect) {
           res.redirect('/vault')
+        } else {
+          res.send({status: 'ok'})
+        }
+      }
+    })
+  }
+})
+
+
+app.post('/api/subscription/subscribe', function(req, res) {
+  if(secure(req, res)) {
+    SubscriptionManagement.subscribe(req.session.email, req.ip, req.body.cardToken, function(err) {
+      if(err) {
+        res.error(err)
+      } else {
+        if(req.query && req.query.redirect) {
+          res.redirect('/account')
+        } else {
+          res.send({status: 'ok'})
+        }
+      }
+    })
+  }
+})
+
+app.post('/api/subscription/cancel', function(req, res) {
+  if(secure(req, res)) {
+    SubscriptionManagement.cancelSubscription(req.session.email, req.ip, function(err) {
+      if(err) {
+        res.error(err)
+      } else {
+        if(req.query && req.query.redirect) {
+          res.redirect('/subscription')
         } else {
           res.send({status: 'ok'})
         }

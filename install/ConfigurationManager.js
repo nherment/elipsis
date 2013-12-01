@@ -3,7 +3,7 @@ var semver = require('semver')
 
 var CONF_FILE = __dirname + '/../conf/conf.json'
 
-var VERSION = 1
+var VERSION = 2
 
 function readConf(path) {
 

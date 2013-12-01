@@ -73,3 +73,7 @@ code {
 .navbar > .container .navbar-brand {
   padding: 5px 15px 0px 0px;
 }
+
+input.error {
+  border: solid 2px #EE5757;
+}
