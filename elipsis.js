@@ -52,7 +52,7 @@ app.configure(function () {
   })
   app.use(express.favicon(__dirname + '/public/images/favicon.ico'));
   app.enable('trust proxy')
-  app.use(express.static(__dirname + '/public'))
+  app.use(express.static(__dirname + '/public', { maxAge: 3600*1000}))
   app.use(express.cookieParser())
   app.use(express.cookieSession({ store: new RedisStore({}), secret: sessionSecret, cookie: {maxAge: sessionMaxAge }}))
 //  app.use(express.session({ secret: sessionSecret }))
