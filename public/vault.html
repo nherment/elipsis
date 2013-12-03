@@ -55,7 +55,7 @@
                 <label class="sr-only" for="secret">Secret</label>
                 <input type="text" class="form-control" id="secret" name="secret" placeholder="Secret" autocomplete="off">
             </div>
-            <button id="generateSecretBtn" class="btn btn-default">generate</button>
+            <a href="#" id="generateSecretBtn" class="btn btn-default">generate password</a>
             <button type="submit" class="btn btn-primary">Add</button>
         </form>
         <div class="page-header">
@@ -205,13 +205,13 @@
 //            alert('there was an error')
             try {
                 var pwd = $.generatePassword(20, false)
-                console.log(pwd)
             } catch(err) {
-                console.log(err)
+                // TODO: log
             }
             $('#secret').val(pwd)
-            event.preventDefault();
-            return false;
+            $('#secret').select()
+            event.preventDefault()
+            return false
         })
     })
 

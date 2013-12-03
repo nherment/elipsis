@@ -68,7 +68,7 @@ app.configure(function () {
 var port = argv.port || process.env.SAFEHOUSE_PORT || 4300
 
 app.listen(port, '127.0.0.1', function() {
-  console.log('server listening to http://' + require('os').hostname() + ':' + port)
+  logger.info('server listening to http://' + require('os').hostname() + ':' + port)
 })
 
 function secure(req, res) {
