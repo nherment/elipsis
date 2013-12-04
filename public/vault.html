@@ -59,7 +59,7 @@
             <button type="submit" class="btn btn-primary">Add</button>
         </form>
         <div class="page-header">
-            <h1>Your vault items</h1>
+            <h1>Your vault secrets</h1>
         </div>
         <ul id="vaultList">
 
@@ -208,7 +208,7 @@
         $('#generateSecretBtn').click(function(event) {
 //            alert('there was an error')
             try {
-                var pwd = $.generatePassword(20, false)
+                var pwd = $.generatePassword(30, false)
             } catch(err) {
                 // TODO: log
             }

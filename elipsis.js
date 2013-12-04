@@ -1,16 +1,16 @@
 var HttpResponseAugmenter = require('./lib/error/HttpResponseAugmenter.js')
 var AccountManagement     = require('./lib/account/AccountManagement.js')
 var ConfMgr               = require('./install/ConfigurationManager.js')
+var ClientError           = require('./lib/error/Errors.js').ClientError
 var VaultManagement       = require('./lib/account/VaultManagement.js')
 var logger                = require('./lib/util/Logger.js')
-var ClientError           = require('./lib/error/Errors.js').ClientError
 var optimist              = require('optimist')
 var express               = require('express')
+var RedisStore            = require('connect-redis')(express)
 var toobusy               = require('toobusy')
+var cluster               = require('cluster')
 var uuid                  = require('uuid')
 var fs                    = require('fs')
-var RedisStore            = require('connect-redis')(express)
-var cluster               = require('cluster')
 
 ConfMgr.checkUpdates()
 
@@ -166,7 +166,7 @@ app.post('/account/update', function(req, res) {
 
     if(newPwd === newPwdConf) {
 
-      AccountManagement.update(req.session.email, req.body, function(err) {
+      AccountManagement.update(req.session.email, req.body, req.ip, function(err) {
         if(err) {
           res.error(err)
         } else {
