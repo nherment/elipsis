@@ -49,11 +49,11 @@
         <form class="form-inline pull-right" role="form" action="/vault?redirect=1" method="post">
             <div class="form-group">
                 <label class="sr-only" for="name">Name</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Name or URL" autocomplete="off">
+                <input type="text" class="form-control" id="name" name="name" placeholder="service name & login" autocomplete="off">
             </div>
             <div class="form-group">
                 <label class="sr-only" for="secret">Secret</label>
-                <input type="text" class="form-control" id="secret" name="secret" placeholder="Secret" autocomplete="off">
+                <input type="text" class="form-control" id="secret" name="secret" placeholder="secret" autocomplete="off">
             </div>
             <a href="#" id="generateSecretBtn" class="btn btn-default">generate password</a>
             <button type="submit" class="btn btn-primary">Add</button>
@@ -90,16 +90,16 @@
                     if(vaults && vaults.length > 0) {
                         for(var i = 0 ; i < vaults.length ; i++) {
                             var vault = vaults[i]
-                            var listItem = $('<li class="vault-secret"></li>')
-                            var viewLink = $('<a href="/vault/'+vault.uid+'">'+vault.name+'</a>')
+                            var listItem = $('<li class="vault-secret">'+vault.name+'</li>')
                             var passwordPlaceHolder = $('<input type="text" class="secret-placeholder" readonly/>')
-                            var spinner = $('<img src="images/spinner.gif" alt="loading...">')
-                            var buttons = $('<div style="float: right;"></div>')
+                            var spinner = $('<img src="images/spinner.gif" alt="loading..."/>')
+                            var buttons = $('<div class="pull-right"></div>')
                             var viewButton = $('<button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-eye-open"></span> view</button>')
                             var hideButton = $('<button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-eye-close"></span> hide</button>')
                             var deleteLink = $('<a href="/vault/delete/'+vault.uid+'?redirect=1" class="delete">delete</a>')
-                            listItem.append(viewLink)
+
                             listItem.append(buttons)
+
                             buttons.append(passwordPlaceHolder)
                             buttons.append(spinner)
                             buttons.append(viewButton)
@@ -124,7 +124,7 @@
                                             deleteTimeout = null
                                             deleteClickCount = 0
                                             deleteLink.html('delete')
-                                        }, 2000)
+                                        }, 1000)
                                         return false;
                                     }
                                     if(deleteTimeout) {
@@ -136,7 +136,7 @@
                                         .done(function() {
                                         })
                                         .fail(function(xhr) {
-                                            if(xhr.statusCode !== 404) {
+                                            if(xhr.statusCode() !== 404) {
                                                 listItem.show('pulsate')
                                                 deleteLink.text('[ERROR] Could not delete. Try again')
                                             }
@@ -156,7 +156,7 @@
                                         }
                                     } else {
                                         spinner.show()
-                                        $.get('/vault/'+vault.uid)
+                                        $.get('/vault/' + vault.uid + '?redirect=0')
                                             .done(function(password) {
                                                 spinner.hide()
                                                 viewButton.hide()
@@ -172,10 +172,14 @@
                                                     passwordPlaceHolder.show()
                                                 }
                                             })
-                                            .fail(function() {
+                                            .fail(function(xhr) {
+                                                if(xhr.status === 401) {
+                                                    passwordPlaceHolder.val('Session expired')
+                                                } else {
+                                                    passwordPlaceHolder.val('There was an error ('+xhr.status+')')
+                                                }
                                                 hideButton.hide()
                                                 spinner.hide()
-                                                passwordPlaceHolder.val('There was an error while retrieving your password')
                                                 passwordPlaceHolder.addClass('error')
                                                 passwordPlaceHolder.show()
                                             })

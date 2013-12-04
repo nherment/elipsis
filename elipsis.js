@@ -34,7 +34,14 @@ if (argv.workers > 1 && cluster.isMaster) {
   cluster.on('exit', function(worker, code, signal) {
     logger.info('worker ' + worker.process.pid + ' died')
   })
-  return;
+  return
+}
+
+if(cluster.isWorker && ConfMgr.readConf('application.nodetimeKey')) {
+  require('nodetime').profile({
+    accountKey: ConfMgr.readConf('application.nodetimeKey'),
+    appName: 'elipsis'
+  })
 }
 
 var sessionSecret = ConfMgr.readConf('application.sessionSecret') || uuid.v4()
@@ -54,7 +61,17 @@ app.configure(function () {
   app.enable('trust proxy')
   app.use(express.static(__dirname + '/public', { maxAge: 3600*1000}))
   app.use(express.cookieParser())
-  app.use(express.cookieSession({ store: new RedisStore({}), secret: sessionSecret, cookie: {maxAge: sessionMaxAge }}))
+
+  if(ConfMgr.readConf('redis.enable')) {
+    app.use(express.cookieSession({ store: new RedisStore({
+      host: ConfMgr.readConf('redis.hostname'),
+      port: ConfMgr.readConf('redis.port'),
+      ttl: ConfMgr.readConf('redis.ttl'),
+      pass: ConfMgr.readConf('redis.password')
+    }), secret: sessionSecret, cookie: {maxAge: sessionMaxAge }}))
+  } else {
+    app.use(express.cookieSession({ secret: sessionSecret, cookie: {maxAge: sessionMaxAge }}))
+  }
 //  app.use(express.session({ secret: sessionSecret }))
 //  app.use(express.csrf())
 
@@ -73,7 +90,11 @@ app.listen(port, '127.0.0.1', function() {
 
 function secure(req, res) {
   if(!req.session || !req.session.email) {
-    res.redirect('/login')
+    if(req.query && req.query.redirect == 0) {
+      res.send({reason: 'Authentication required'}, 401)
+    } else {
+      res.redirect('/login')
+    }
     return false
   } else {
     return true

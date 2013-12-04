@@ -34,9 +34,11 @@
     "mocha": "1.14.0",
     "nodemailer": "0.5.9",
     "connect-redis": "1.4.6",
+    "hiredis": "0.1.15",
     "date-format-lite": "0.5.0",
     "semver": "2.2.1",
     "stripe": "2.2.2",
-    "winston": "~0.7.2"
+    "winston": "0.7.2",
+    "nodetime": "0.8.14"
   }
 }

@@ -15,7 +15,8 @@ function configure(IOHelper, callback) {
     sessionSecret: uuid.v4(),
     sessionMaxAge: 20*1000,
     encryptionPwd: uuid.v4(),
-    websiteUrl: 'https://elipsis.io'
+    websiteUrl: 'https://elipsis.io',
+    nodetimeKey: null
   }
 
   if(conf.application) {
@@ -43,6 +44,9 @@ function configure(IOHelper, callback) {
     if(conf.application.websiteUrl) {
       appConfig.websiteUrl = conf.application.websiteUrl
     }
+    if(conf.application.nodetimeKey) {
+      appConfig.nodetimeKey = conf.application.nodetimeKey
+    }
   }
 
   var opts = {
@@ -57,7 +61,8 @@ function configure(IOHelper, callback) {
       {dataType: 'string', attr: 'sessionSecret', message: 'Session secret'},
       {dataType: 'int', attr: 'sessionMaxAge', message: 'Session timeout'},
       {dataType: 'string', attr: 'encryptionPwd', message: 'App level encryption password'},
-      {dataType: 'string', attr: 'websiteUrl', message: 'The website\'s url. Must end with a /'}
+      {dataType: 'string', attr: 'websiteUrl', message: 'The website\'s url. Must end with a /'},
+      {dataType: 'string', attr: 'nodetimeKey', message: 'nodetime key for profiling'}
     ]
   }
 

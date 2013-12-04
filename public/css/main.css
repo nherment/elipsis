@@ -67,10 +67,11 @@ code {
 
 .secret-placeholder {
   margin: 0px 20px 0px 10px;
-  padding: 0px;
+  padding: 0px 0px 0px 0px;
   border-style: none;
   height: 25px;
-  min-width: 200px;
+  min-width: 300px;
+  text-align: right;
 }
 .secret-placeholder:focus {
   outline: none;
