@@ -1,9 +1,9 @@
 .idea
 node_modules
-/conf/
+conf/conf.json
 
 .DS_Store
 
 npm-debug.log
 
-/logs
+logs*
