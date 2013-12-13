@@ -245,7 +245,7 @@ app.get('/vaults', function(req, res) {
 
 app.post('/vault', function(req, res) {
   if(secure(req, res)) {
-    VaultManagement.addVault(req.ip, req.session.email, req.session.hash, req.body, function(err, vaultInfo) {
+    VaultManagement.saveVault(req.ip, req.session.email, req.session.hash, req.body, function(err, vaultInfo) {
       if(err) {
         res.error(err)
       } else {

@@ -65,6 +65,19 @@ code {
   line-height: 30px;
 }
 
+li.ready {
+  border: dashed 1px yellowgreen;
+  border-radius: 5px;
+}
+
+li.accept {
+  background-color: yellowgreen;
+}
+
+.drag {
+  cursor: pointer;
+}
+
 .secret-placeholder {
   margin: 0px 20px 0px 10px;
   padding: 0px 0px 0px 0px;
