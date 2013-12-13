@@ -357,19 +357,17 @@
             })
 
             $('#newCategoryInput').keyup(function(e) {
-                if (e.target == $('#newCategoryInput')[0] && e.keyCode == 13) { saveNewCategory() }     // enter
+                if (e.target == $('#newCategoryInput')[0] && e.keyCode == 13) { saveNewCategory($('#newCategoryInput').val()) }     // enter
                 if (e.keyCode == 27) { cancelNewCategory() }   // esc
             })
 
             $('#newCategoryCreateBtn').click(function() {
-                saveNewCategory()
+                saveNewCategory($('#newCategoryInput').val())
             })
 
             function saveNewCategory(categoryName) {
                 if(!categoryName) {
                     categoryName = undefined
-                } else if(!categoryName) {
-                    categoryName = $('#newCategoryInput').val()
                 }
 
                 if(droppedVault) {
