@@ -144,12 +144,12 @@
             if(vaults && vaults.length > 0) {
                 for(var i = 0 ; i < vaults.length ; i++) {
                     var vault = vaults[i]
-                    var listItem = $('<li class="vault-secret"><img src="/images/drag.png" class="drag"/> '+vault.name+'</li>')
+                    var listItem = $('<li class="vault-secret"><img src="/images/drag.png" width="16px" height="16px" class="drag"/> '+vault.name+'</li>')
                     var passwordPlaceHolder = $('<input type="text" class="secret-placeholder" readonly/>')
                     var spinner = $('<img src="images/spinner.gif" alt="loading..."/>')
                     var buttons = $('<div class="pull-right"></div>')
-                    var viewButton = $('<button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-eye-open"></span> view</button>')
-                    var hideButton = $('<button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-eye-close"></span> hide</button>')
+                    var viewButton = $('<button type="button" class="btn btn-link btn-xs">view</button>')
+                    var hideButton = $('<button type="button" class="btn btn-link btn-xs">hide</button>')
                     var deleteLink = $('<a href="/vault/delete/'+vault.uid+'?redirect=1" class="delete">delete</a>')
 
                     listItem.append(buttons)
@@ -217,6 +217,7 @@
                                 })
                             return false
                         })
+
                         viewButton.click(function() {
                             viewButton.hide()
                             hideButton.hide()
