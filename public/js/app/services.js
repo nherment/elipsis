@@ -2,7 +2,7 @@
 
 /* Services */
 
-app.factory('menuService', function($rootScope) {
+elipsisApp.factory('menuService', function($rootScope) {
   var sharedService = {}
 
   sharedService.message = ''

@@ -1,0 +1,28 @@
+<form id="newSecretForm" class="form-inline pull-right" role="form" action="/api/vault?redirect=/app/vault" method="post">
+    <div class="form-group">
+        <label class="sr-only" for="name">Name</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="service name & login" autocomplete="off">
+    </div>
+    <div class="form-group">
+        <label class="sr-only" for="secret">Secret</label>
+        <input type="text" class="form-control" id="secret" name="secret" placeholder="secret" autocomplete="off">
+    </div>
+    <a href="#" id="generateSecretBtn" class="btn btn-default">generate password</a>
+    <button type="submit" class="btn btn-primary">Add</button>
+
+</form>
+<div class="page-header">
+    <h1>Your vault secrets</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-3 well">
+        <ul class="nav nav-pills nav-stacked" id="categoryList">
+
+        </ul>
+    </div>
+    <div class="col-md-9">
+        <ul id="vaultList"></ul>
+    </div>
+</div>
+<script src="/js/MakePassword.js"></script>

@@ -88,12 +88,14 @@ app.listen(port, '127.0.0.1', function() {
   logger.info('server listening to http://' + require('os').hostname() + ':' + port)
 })
 
-function secure(req, res) {
+function secure(req, res, redirect) {
   if(!req.session || !req.session.email) {
-    if(req.query && req.query.redirect == 0) {
+    if(!redirect || (req.query && req.query.redirect == 0)) {
       res.send({reason: 'Authentication required'}, 401)
-    } else {
+    } else if(req.query && req.query.redirect == 1) {
       res.redirect('/login')
+    } else if(req.query) {
+      res.redirect(req.query.redirect)
     }
     return false
   } else {
@@ -104,7 +106,7 @@ function secure(req, res) {
 
 app.get('/login', function(req, res) {
   if(req.session.email) {
-    res.redirect('/vault')
+    res.redirect('/app/vault')
   } else {
     res.sendfile(__dirname + '/public/login.html')
   }
@@ -125,7 +127,7 @@ app.post('/login', function(req, res) {
     } else {
       req.session.email = session.email
       req.session.hash  = session.hash
-      res.redirect('/vault')
+      res.redirect('/app/vault')
     }
   })
 })
@@ -170,13 +172,26 @@ app.post('/account/update', function(req, res) {
         if(err) {
           res.error(err)
         } else {
-          res.redirect('/logout?redirect=login')
+          res.redirect('/logout?redirect=/login')
         }
       })
     } else {
       res.error(new ClientError(ClientError.BAD_REQUEST, 'password confirmation is not the same as the password'))
     }
   }
+})
+
+app.get('/app', function(req, res) {
+  res.redirect('/app/vault')
+})
+
+app.get('/vault', function(req, res) {
+  logger.warn('redirecting from /vault to /app/vault')
+  res.redirect('/app/vault')
+})
+
+app.get('/app/:section', function(req, res) {
+  res.sendfile(__dirname + '/public/app.html')
 })
 
 app.get('/contact', function(req, res) {
@@ -188,11 +203,12 @@ app.get('/pricing', function(req, res) {
 })
 
 app.get('/logout', function(req, res) {
+  console.log(req.session)
   if(req.session) {
     req.session = null
   }
-  if(req.query && req.query.redirect === 'login') {
-    res.redirect('/login')
+  if(req.query && req.query.redirect) {
+    res.redirect(req.query.redirect)
   } else {
     res.redirect('/')
   }
@@ -231,8 +247,8 @@ app.get('/account', function(req, res) {
   }
 })
 
-app.get('/vaults', function(req, res) {
-  if(secure(req, res)) {
+app.get('/api/vaults', function(req, res) {
+  if(secure(req, res, false)) {
     VaultManagement.listVaults(req.ip, req.session.email, req.session.hash, function(err, vaults) {
       if(err) {
         res.error(err)
@@ -243,8 +259,8 @@ app.get('/vaults', function(req, res) {
   }
 })
 
-app.post('/vault', function(req, res) {
-  if(secure(req, res)) {
+app.post('/api/vault', function(req, res) {
+  if(secure(req, res, true)) {
     VaultManagement.saveVault(req.ip, req.session.email, req.session.hash, req.body, function(err, vaultInfo) {
       if(err) {
         res.error(err)
