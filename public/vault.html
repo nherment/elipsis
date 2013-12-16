@@ -174,7 +174,8 @@
                             cursor: 'move',
                             distance: 0,
                             helper: function( event ) {
-                                return $( '<div>'+vault.name+'</div>' );
+                                cancelNewCategory()
+                                return $( '<div>'+vault.name+'</div>' )
                             },
                             start: function() {
                                 $('#newCategoryBtn').show('fade')
@@ -299,6 +300,16 @@
         }
 
         var droppedVault
+        var newCategoryFocusOutCancelTimeout
+
+
+
+        function cancelNewCategory() {
+            $('#newCategoryBtn').hide('fade')
+            $('#newCategoryInput').hide('fade')
+            $('#newCategoryCreateBtn').hide('fade')
+            $('#newCategoryInput').val('Category Name')
+        }
 
         function displayCategories(categoryList) {
 
@@ -388,15 +399,12 @@
                 }
             }
 
-            function cancelNewCategory() {
-                $('#newCategoryBtn').hide('fade')
-                $('#newCategoryInput').hide('fade')
-                $('#newCategoryCreateBtn').hide('fade')
-                $('#newCategoryInput').val('')
-            }
-
             $('#newCategoryInput').focusout(function(event) {
-                cancelNewCategory()
+                if(newCategoryFocusOutCancelTimeout) {
+                    clearTimeout(newCategoryFocusOutCancelTimeout)
+                }
+
+                newCategoryFocusOutCancelTimeout = setTimeout(cancelNewCategory, 2000)
                 event.preventDefault()
                 return false
             })
