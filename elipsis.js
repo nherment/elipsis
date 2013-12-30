@@ -110,6 +110,11 @@ app.get('/login', function(req, res) {
   }
 })
 
+
+app.get('/status', function(req, res) {
+  res.send('We have not received any government regarding a user. We have not received any government request of any kind.')
+})
+
 app.post('/login', function(req, res) {
   var email = req.body.email
 
