@@ -130,13 +130,13 @@
         }
 
 
-        $("#search_input").focus(function() {
-            search()
-        }).blur(function() {
-          if(categories.length > 0) {
-            selectCategory(0, categories[0].name)
-          }
-        })
+        // $("#search_input").focus(function() {
+        //     search()
+        // }).blur(function() {
+        //   if(categories.length > 0) {
+        //     selectCategory(0, categories[0].name)
+        //   }
+        // })
 
         function printResults(results) {
           if (results.length == 0) {
