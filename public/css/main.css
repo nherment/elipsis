@@ -104,6 +104,6 @@ li.accept {
   padding: 5px 15px 0px 0px;
 }
 
-input:focus {
+input.form-control:focus {
   background-color: #e9c825;
 }
