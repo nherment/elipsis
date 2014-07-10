@@ -103,3 +103,7 @@ li.accept {
   font-size: 30px;
   padding: 5px 15px 0px 0px;
 }
+
+input:focus {
+  background-color: #e9c825;
+}

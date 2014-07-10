@@ -11,7 +11,7 @@
     <title>elipsis.io (vault)</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="css/main.css" rel="stylesheet">
@@ -62,6 +62,16 @@
         <div class="page-header">
             <h1>Your vault secrets</h1>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form id="search" class="form-inline pull-right" role="form" action="/vault" method="get">
+                    <div class="form-group">
+                        <label class="sr-only" for="name">Search</label>
+                        <input type="text" class="form-control" id="search_input" size="50" name="search_input" placeholder="search" autocomplete="off" autofocus="autofocus">
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <div class="row">
             <div class="col-md-3 well">
@@ -91,6 +101,8 @@
 <script src="/js/jquery-ui-1.10.3.custom.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/MakePassword.js"></script>
+<script src="/js/fuse.min.js"></script>
+
 
 <script type="application/javascript">
     $( document ).ready(function() {
@@ -99,14 +111,56 @@
 //            {name: undefined, items: []}
         ]
 
+
+        var vaultsMap = {}
+        var vaultIndex
+
+        $('#search_input').keyup(function() {
+          search()
+        })
+
+        function search() {
+          var e = $('#search_input').val().toLowerCase();
+          if(e) {
+            var results = vaultIndex.search(e)
+            printResults(results)
+          } else if(categories.length > 0) {
+            selectCategory(0, categories[0].name)
+          }
+        }
+
+
+        $("#search_input").focus(function() {
+            search()
+        }).blur(function() {
+          if(categories.length > 0) {
+            selectCategory(0, categories[0].name)
+          }
+        })
+
+        function printResults(results) {
+          if (results.length == 0) {
+            displayVaults()
+          } else {
+            $('.category').removeClass('active')
+            var vaults = []
+            for(var i = 0 ; i < results.length ; i++) {
+              vaults.push(vaultsMap[results[i]])
+            }
+            displayVaults(vaults)
+          }
+        }
+
+
         $.get('/vaults')
             .done(function(vaults) {
                 $('#vaultList').html('')
                 if(vaults && vaults.length > 0) {
+
+                    vaultIndex = new Fuse(vaults, {keys: ['name'], id: 'uid'});
                     for(var i = 0 ; i < vaults.length ; i++) {
-
+                        vaultsMap[vaults[i].uid] = vaults[i]
                         assignToCategory(vaults[i])
-
                     }
 
                     categories.sort(function(a, b) {
@@ -131,6 +185,146 @@
                 $('#vaultList').html(error)
             })
 
+        function displayVaults(vaults) {
+          $('#vaultList').html('')
+          if(vaults && vaults.length > 0) {
+              for(var i = 0 ; i < vaults.length ; i++) {
+                  var vault = vaults[i]
+                  var listItem = $('<li class="vault-secret"><img src="/images/drag.png" width="16px" height="16px" class="drag"/> '+vault.name+'</li>')
+                  var passwordPlaceHolder = $('<input type="text" class="secret-placeholder" readonly/>')
+                  var spinner = $('<img src="images/spinner.gif" alt="loading..."/>')
+                  var buttons = $('<div class="pull-right"></div>')
+                  var viewButton = $('<button type="button" class="btn btn-link btn-xs">view</button>')
+                  var hideButton = $('<button type="button" class="btn btn-link btn-xs">hide</button>')
+                  var deleteLink = $('<a href="/vault/delete/'+vault.uid+'?redirect=1" class="delete">delete</a>')
+
+                  listItem.append(buttons)
+
+                  buttons.append(passwordPlaceHolder)
+                  buttons.append(spinner)
+                  buttons.append(viewButton)
+                  buttons.append(hideButton)
+                  buttons.append(deleteLink)
+
+                  spinner.hide()
+                  hideButton.hide()
+                  passwordPlaceHolder.hide()
+
+                  $('#vaultList').append(listItem)
+
+                  ;(function(listItem, vault) {
+                      listItem.draggable({
+                          revert: 'invalid',
+                          handle: '.drag',
+                          cursorAt: { top: 0, left: 0 },
+                          cursor: 'move',
+                          distance: 0,
+                          helper: function( event ) {
+                              cancelNewCategory()
+                              return $( '<div>'+vault.name+'</div>' )
+                          },
+                          start: function() {
+                              $('#newCategoryBtn').show('fade')
+                          },
+                          stop: function() {
+                              $('#newCategoryBtn').hide('fade')
+                              droppedVault = vault
+                          }
+                      })
+                  })(listItem, vault)
+
+                  ;(function(vault, spinner, viewButton, hideButton, passwordPlaceHolder, deleteLink, listItem) {
+                      var deleteClickCount = 0
+                      var deleteTimeout
+
+                      deleteLink.click(function() {
+                          if(deleteClickCount === 0) {
+                              deleteClickCount = 1
+                              deleteLink.html('confirm')
+                              deleteTimeout = setTimeout(function() {
+                                  deleteTimeout = null
+                                  deleteClickCount = 0
+                                  deleteLink.html('delete')
+                              }, 1000)
+                              return false;
+                          }
+                          if(deleteTimeout) {
+                              clearTimeout(deleteTimeout)
+                          }
+
+                          listItem.hide('drop')
+                          $.get('/vault/delete/'+vault.uid)
+                              .done(function() {
+                              })
+                              .fail(function(xhr) {
+                                  if(xhr.statusCode() !== 404) {
+                                      listItem.show('pulsate')
+                                      deleteLink.text('[ERROR] Could not delete. Try again')
+                                  }
+                              })
+                          return false
+                      })
+
+                      viewButton.click(function() {
+                          viewButton.hide()
+                          hideButton.hide()
+
+                          if(passwordPlaceHolder.val()) {
+                              hideButton.show()
+                              passwordPlaceHolder.show()
+                              if(!passwordPlaceHolder.hasClass('error')) {
+                                  passwordPlaceHolder.focus()
+                                  passwordPlaceHolder.select()
+                              }
+                          } else {
+                              spinner.show()
+                              $.get('/vault/' + vault.uid + '?redirect=0')
+                                  .done(function(password) {
+                                      spinner.hide()
+                                      viewButton.hide()
+                                      hideButton.show()
+                                      if(password) {
+                                          passwordPlaceHolder.val(password)
+                                          passwordPlaceHolder.show()
+                                          passwordPlaceHolder.focus()
+                                          passwordPlaceHolder.select()
+                                      } else {
+                                          passwordPlaceHolder.addClass('error')
+                                          passwordPlaceHolder.val('this secret is empty')
+                                          passwordPlaceHolder.show()
+                                      }
+                                  })
+                                  .fail(function(xhr) {
+                                      if(xhr.status === 401) {
+                                          passwordPlaceHolder.val('Session expired')
+                                      } else {
+                                          passwordPlaceHolder.val('There was an error ('+xhr.status+')')
+                                      }
+                                      hideButton.hide()
+                                      spinner.hide()
+                                      passwordPlaceHolder.addClass('error')
+                                      passwordPlaceHolder.show()
+                                  })
+                          }
+                      })
+                      hideButton.click(function() {
+                          hideButton.hide()
+                          viewButton.show()
+                          passwordPlaceHolder.hide()
+                      })
+                  })(vault, spinner, viewButton, hideButton, passwordPlaceHolder, deleteLink, listItem);
+
+              }
+
+          //                displayCategories(categories)
+
+
+
+          } else {
+              $('#vaultList').html("You don't have any secret here.")
+          }
+        }
+
         function displayCategory(categoryName) {
 
             var vaults
@@ -139,147 +333,8 @@
                     vaults = categories[i].items
                 }
             }
+            displayVaults(vaults)
 
-            $('#vaultList').html('')
-            if(vaults && vaults.length > 0) {
-                for(var i = 0 ; i < vaults.length ; i++) {
-                    var vault = vaults[i]
-                    var listItem = $('<li class="vault-secret"><img src="/images/drag.png" width="16px" height="16px" class="drag"/> '+vault.name+'</li>')
-                    var passwordPlaceHolder = $('<input type="text" class="secret-placeholder" readonly/>')
-                    var spinner = $('<img src="images/spinner.gif" alt="loading..."/>')
-                    var buttons = $('<div class="pull-right"></div>')
-                    var viewButton = $('<button type="button" class="btn btn-link btn-xs">view</button>')
-                    var hideButton = $('<button type="button" class="btn btn-link btn-xs">hide</button>')
-                    var deleteLink = $('<a href="/vault/delete/'+vault.uid+'?redirect=1" class="delete">delete</a>')
-
-                    listItem.append(buttons)
-
-                    buttons.append(passwordPlaceHolder)
-                    buttons.append(spinner)
-                    buttons.append(viewButton)
-                    buttons.append(hideButton)
-                    buttons.append(deleteLink)
-
-                    spinner.hide()
-                    hideButton.hide()
-                    passwordPlaceHolder.hide()
-
-                    $('#vaultList').append(listItem)
-
-                    ;(function(listItem, vault) {
-                        listItem.draggable({
-                            revert: 'invalid',
-                            handle: '.drag',
-                            cursorAt: { top: 0, left: 0 },
-                            cursor: 'move',
-                            distance: 0,
-                            helper: function( event ) {
-                                cancelNewCategory()
-                                return $( '<div>'+vault.name+'</div>' )
-                            },
-                            start: function() {
-                                $('#newCategoryBtn').show('fade')
-                            },
-                            stop: function() {
-                                $('#newCategoryBtn').hide('fade')
-                                droppedVault = vault
-                            }
-                        })
-                    })(listItem, vault)
-
-                    ;(function(vault, spinner, viewButton, hideButton, passwordPlaceHolder, deleteLink, listItem) {
-                        var deleteClickCount = 0
-                        var deleteTimeout
-
-                        deleteLink.click(function() {
-                            if(deleteClickCount === 0) {
-                                mixpanel.track("vault.secret.delete.intialize");
-                                deleteClickCount = 1
-                                deleteLink.html('confirm')
-                                deleteTimeout = setTimeout(function() {
-                                    deleteTimeout = null
-                                    deleteClickCount = 0
-                                    deleteLink.html('delete')
-                                }, 1000)
-                                return false;
-                            }
-                            if(deleteTimeout) {
-                                clearTimeout(deleteTimeout)
-                            }
-
-                            listItem.hide('drop')
-                            mixpanel.track("vault.secret.delete.confirm");
-                            $.get('/vault/delete/'+vault.uid)
-                                .done(function() {
-                                })
-                                .fail(function(xhr) {
-                                    if(xhr.statusCode() !== 404) {
-                                        listItem.show('pulsate')
-                                        deleteLink.text('[ERROR] Could not delete. Try again')
-                                    }
-                                })
-                            return false
-                        })
-
-                        viewButton.click(function() {
-                            viewButton.hide()
-                            hideButton.hide()
-                            mixpanel.track("vault.secret.view");
-
-                            if(passwordPlaceHolder.val()) {
-                                hideButton.show()
-                                passwordPlaceHolder.show()
-                                if(!passwordPlaceHolder.hasClass('error')) {
-                                    passwordPlaceHolder.focus()
-                                    passwordPlaceHolder.select()
-                                }
-                            } else {
-                                spinner.show()
-                                $.get('/vault/' + vault.uid + '?redirect=0')
-                                    .done(function(password) {
-                                        spinner.hide()
-                                        viewButton.hide()
-                                        hideButton.show()
-                                        if(password) {
-                                            passwordPlaceHolder.val(password)
-                                            passwordPlaceHolder.show()
-                                            passwordPlaceHolder.focus()
-                                            passwordPlaceHolder.select()
-                                        } else {
-                                            passwordPlaceHolder.addClass('error')
-                                            passwordPlaceHolder.val('this secret is empty')
-                                            passwordPlaceHolder.show()
-                                        }
-                                    })
-                                    .fail(function(xhr) {
-                                        if(xhr.status === 401) {
-                                            passwordPlaceHolder.val('Session expired')
-                                        } else {
-                                            passwordPlaceHolder.val('There was an error ('+xhr.status+')')
-                                        }
-                                        hideButton.hide()
-                                        spinner.hide()
-                                        passwordPlaceHolder.addClass('error')
-                                        passwordPlaceHolder.show()
-                                    })
-                            }
-                        })
-                        hideButton.click(function() {
-                            hideButton.hide()
-                            viewButton.show()
-                            passwordPlaceHolder.hide()
-                        })
-                    })(vault, spinner, viewButton, hideButton, passwordPlaceHolder, deleteLink, listItem);
-
-                }
-
-//                displayCategories(categories)
-
-
-
-            } else {
-                $('#vaultList').html("You don't have any secret here.")
-            }
         }
 
         function assignToCategory(vault) {
@@ -386,7 +441,6 @@
                 }
 
                 if(droppedVault) {
-                    mixpanel.track("vault.secret.set_category");
                     var vault = droppedVault
                     vault.category = categoryName
                     $.post('/vault', vault)
@@ -416,15 +470,12 @@
 
         window.selectCategory = function(index, cat) {
             if(!index) { index = 0 }
-            mixpanel.track("vault.category.select");
             $('.category').removeClass('active')
             $('.category:eq('+index+')').addClass('active')
             displayCategory(cat)
-        }
+        } 
 
         $('#generateSecretBtn').click(function(event) {
-//            alert('there was an error')
-            mixpanel.track("vault.secret.create");
             try {
                 var pwd = $.generatePassword(30, false)
             } catch(err) {
@@ -441,8 +492,5 @@
 
 </script>
 
-<!-- start Mixpanel -->
-<script type="text/javascript">(function(e,b){if(!b.__SV){var a,f,i,g;window.mixpanel=b;a=e.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"===e.location.protocol?"https:":"http:")+'//cdn.mxpnl.com/libs/mixpanel-2.2.min.js';f=e.getElementsByTagName("script")[0];f.parentNode.insertBefore(a,f);b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2}})(document,window.mixpanel||[]);mixpanel.init("377cb35c736cb6e9f0e516f56a17b90e");</script>
-<!-- end Mixpanel -->
 </body>
 </html>
