@@ -45,6 +45,7 @@
     "underscore": "1.5.2",
     "uuid": "1.4.1",
     "winston": "0.7.2",
+    "winston-syslog": "0.2.5",
     "yub": "0.10.7"
   },
   "devDependencies": {
