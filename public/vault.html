@@ -46,7 +46,7 @@
 
     <!-- Begin page content -->
     <div class="container">
-        <form id="newSecretForm" class="form-inline pull-right" role="form" action="/vault?redirect=1" method="post">
+        <form id="newSecretForm" class="form-inline pull-right" role="form" action="/api/vault?redirect=1" method="post">
             <div class="form-group">
                 <label class="sr-only" for="name">Name</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="service name & login" autocomplete="off">
@@ -253,7 +253,7 @@
                           }
 
                           listItem.hide('drop')
-                          $.get('/vault/delete/'+vault.uid)
+                          $.get('/api/vault/delete/'+vault.uid)
                               .done(function() {
                               })
                               .fail(function(xhr) {
@@ -278,7 +278,7 @@
                               }
                           } else {
                               spinner.show()
-                              $.get('/vault/' + vault.uid + '?redirect=0')
+                              $.get('/api/vault/' + vault.uid + '?redirect=0')
                                   .done(function(password) {
                                       spinner.hide()
                                       viewButton.hide()
@@ -443,7 +443,7 @@
                 if(droppedVault) {
                     var vault = droppedVault
                     vault.category = categoryName
-                    $.post('/vault', vault)
+                    $.post('/api/vault', vault)
                         .done(function() {
                             cancelNewCategory()
                             location.reload()

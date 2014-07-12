@@ -6,11 +6,19 @@ var VaultManagement       = require('./lib/account/VaultManagement.js')
 var logger                = require('./lib/util/Logger.js')
 var optimist              = require('optimist')
 var express               = require('express')
-var RedisStore            = require('connect-redis')(express)
 var toobusy               = require('toobusy')
 var cluster               = require('cluster')
 var uuid                  = require('uuid')
 var fs                    = require('fs')
+var compression = require('compression')
+var cookieParser = require('cookie-parser')
+var csrf = require('csurf')
+var session = require('express-session')
+var serveStatic = require('serve-static')
+var RedisStore = require('connect-redis')(session)
+var favicon = require('serve-favicon')
+
+var bodyParser = require('body-parser')
 
 ConfMgr.checkUpdates()
 
@@ -35,6 +43,8 @@ if (argv.workers > 1 && cluster.isMaster) {
     logger.info('worker ' + worker.process.pid + ' died')
   })
   return
+} else if(cluster.isWorker) {
+  console.log('Starting worker #', cluster.worker.id)
 }
 
 if(cluster.isWorker && ConfMgr.readConf('application.nodetimeKey')) {
@@ -49,38 +59,45 @@ var sessionMaxAge = ConfMgr.readConf('application.sessionMaxAge') || 60*1000
 
 var app = express()
 
-app.configure(function () {
-  app.use(function(req, res, next) {
-    if(toobusy()) {
-      res.send('The server is overloaded', 503);
-    } else {
-      next()
-    }
-  })
-  app.use(express.favicon(__dirname + '/public/images/favicon.ico'));
-  app.enable('trust proxy')
-  app.use(express.static(__dirname + '/public', { maxAge: 3600*1000}))
-  app.use(express.cookieParser())
-
-  if(ConfMgr.readConf('redis.enable')) {
-    app.use(express.cookieSession({ store: new RedisStore({
-      host: ConfMgr.readConf('redis.hostname'),
-      port: ConfMgr.readConf('redis.port'),
-      ttl: ConfMgr.readConf('redis.ttl'),
-      pass: ConfMgr.readConf('redis.password')
-    }), secret: sessionSecret, cookie: {maxAge: sessionMaxAge }}))
+app.use(function(req, res, next) {
+  if(toobusy()) {
+    res.send('The server is overloaded', 503);
   } else {
-    app.use(express.cookieSession({ secret: sessionSecret, cookie: {maxAge: sessionMaxAge }}))
+    next()
   }
-//  app.use(express.session({ secret: sessionSecret }))
-//  app.use(express.csrf())
-
-  app.use(express.compress())
-  app.use(express.json())
-  app.use(express.urlencoded())
-  app.use(HttpResponseAugmenter())
-  app.use(app.router)
 })
+app.use(favicon(__dirname + '/public/images/favicon.ico'));
+app.enable('trust proxy')
+app.use(compression())
+app.use(serveStatic(__dirname + '/public', { maxAge: 3600*1000}))
+app.use(cookieParser())
+
+var RedisConf = {
+  host: ConfMgr.readConf('redis.hostname'),
+  port: ConfMgr.readConf('redis.port'),
+  ttl: ConfMgr.readConf('redis.ttl'),
+  pass: ConfMgr.readConf('redis.password'),
+  prefix: 'elipsis_'
+}
+
+app.use(session({
+  secret: sessionSecret,
+  store: new RedisStore(RedisConf),
+  resave: true,
+  saveUninitialized: true,
+  secure: true
+}))
+
+app.use(bodyParser.urlencoded({extended: false}))
+app.use(HttpResponseAugmenter())
+
+var api = express.Router({
+  caseSensitive: true,
+  strict: true
+})
+// api.use(csrf())
+
+app.use('/api', api)
 
 var port = argv.port || process.env.SAFEHOUSE_PORT || 4300
 
@@ -90,6 +107,7 @@ app.listen(port, '127.0.0.1', function() {
 
 function secure(req, res) {
   if(!req.session || !req.session.email) {
+    logger.warn('access denied to ' + req.url + ' because there is no valid session ' + req.session.id)
     if(req.query && req.query.redirect == 0) {
       res.send({reason: 'Authentication required'}, 401)
     } else {
@@ -115,7 +133,8 @@ app.get('/status', function(req, res) {
   res.send('We have not received any government regarding a user. We have not received any government request of any kind.')
 })
 
-app.post('/login', function(req, res) {
+api.post('/login', function(req, res) {
+  logger.info('req /api/login' + req.session.id)
   var email = req.body.email
 
   var credentials = {
@@ -124,13 +143,18 @@ app.post('/login', function(req, res) {
     yubikey: req.body.yubikey
   }
 
+  logger.info('login attempt', email, credentials)
+
   AccountManagement.login(email, credentials, req.ip, function(err, session) {
     if(err) {
       res.error(err)
     } else {
+      //req.session.upgrade( email )
       req.session.email = session.email
-      req.session.hash  = session.hash
-      res.redirect('/vault')
+      req.session.token  = session.hash
+      req.session.save(function() {
+        res.redirect('/vault')
+      })
     }
   })
 })
@@ -139,7 +163,7 @@ app.get('/register', function(req, res) {
   res.sendfile(__dirname + '/public/register.html')
 })
 
-app.post('/register', function(req, res) {
+api.post('/register', function(req, res) {
   var email = req.body.email
 
   var credentials = {
@@ -161,7 +185,7 @@ app.get('/registered', function(req, res) {
   res.sendfile(__dirname + '/public/registered.html')
 })
 
-app.post('/account/update', function(req, res) {
+api.post('/account/update', function(req, res) {
   if(secure(req, res)) {
 
     var oldPwd = req.oldPassword
@@ -194,7 +218,7 @@ app.get('/pricing', function(req, res) {
 
 app.get('/logout', function(req, res) {
   if(req.session) {
-    req.session = null
+    req.session.destroy()
   }
   if(req.query && req.query.redirect === 'login') {
     res.redirect('/login')
@@ -238,7 +262,7 @@ app.get('/account', function(req, res) {
 
 app.get('/vaults', function(req, res) {
   if(secure(req, res)) {
-    VaultManagement.listVaults(req.ip, req.session.email, req.session.hash, function(err, vaults) {
+    VaultManagement.listVaults(req.ip, req.session.email, req.session.token, function(err, vaults) {
       if(err) {
         res.error(err)
       } else {
@@ -248,9 +272,9 @@ app.get('/vaults', function(req, res) {
   }
 })
 
-app.post('/vault', function(req, res) {
+api.post('/vault', function(req, res) {
   if(secure(req, res)) {
-    VaultManagement.saveVault(req.ip, req.session.email, req.session.hash, req.body, function(err, vaultInfo) {
+    VaultManagement.saveVault(req.ip, req.session.email, req.session.token, req.body, function(err, vaultInfo) {
       if(err) {
         res.error(err)
       } else {
@@ -264,9 +288,9 @@ app.post('/vault', function(req, res) {
   }
 })
 
-app.get('/vault/:uid', function(req, res) {
+api.get('/vault/:uid', function(req, res) {
   if(secure(req, res)) {
-    VaultManagement.readVault(req.ip, req.session.email, req.session.hash, req.param('uid'), function(err, vaultData) {
+    VaultManagement.readVault(req.ip, req.session.email, req.session.token, req.param('uid'), function(err, vaultData) {
       if(err) {
         res.error(err)
       } else {
@@ -276,7 +300,7 @@ app.get('/vault/:uid', function(req, res) {
   }
 })
 
-app.get('/vault/delete/:uid', function(req, res) {
+api.get('/vault/delete/:uid', function(req, res) {
   if(secure(req, res)) {
     VaultManagement.removeVault(req.ip, req.session.email, req.param('uid'), function(err) {
       if(err) {
