@@ -117,6 +117,7 @@
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="/js/jquery-2.0.3.js"></script>
 <script src="js/bootstrap.min.js"></script>
+<script src="js/moment.min.js"></script>
 <script type="application/javascript">
 
     $(document).on('ready', function() {
@@ -130,7 +131,7 @@
 
                         var row = $('<tr></tr>')
 
-                        var date = $('<td>'+audits[i].date+'</td>')
+                        var date = $('<td>'+moment(audits[i].date).format('MMMM Do (dddd) [at] HH:mm Z')+'</td>')
                         var ip = $('<td>'+audits[i].ip+'</td>')
                         var action = $('<td>'+audits[i].action+'</td>')
 
