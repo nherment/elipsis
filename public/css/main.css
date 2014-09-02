@@ -20,6 +20,19 @@ body {
   /* The html and body elements cannot have any padding or margin. */
 }
 
+tr.action_authentication_failed {
+  background-color: #FFA500;
+}
+
+tr.action_password_update {
+  background-color: #CD0000;
+  color: white;
+}
+
+tr.action_password_update:hover {
+  color: inherit;
+}
+
 /* Wrapper for page content to push down footer */
 #wrap {
   min-height: 100%;

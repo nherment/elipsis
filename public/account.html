@@ -51,7 +51,7 @@
                 <div class="page-header">
                     <h2>Password Change</h2>
                 </div>
-                <form role="form" action="/account/update" method="post">
+                <form role="form" action="/api/account/update" method="post">
                     <div class="form-group">
                         <label for="oldPassword">Old Password</label>
                         <input type="password" class="form-control" id="oldPassword" name="oldPassword" placeholder="Old Password" required="true">
@@ -129,7 +129,8 @@
                 if(audits && audits.length > 0) {
                     for(var i = 0 ; i < audits.length ; i++) {
 
-                        var row = $('<tr></tr>')
+                        var style = ('action_' + audits[i].action).replace(' ', '_')
+                        var row = $('<tr class="' + style + '"></tr>')
 
                         var date = $('<td>'+moment(audits[i].date).format('MMMM Do (dddd) [at] HH:mm Z')+'</td>')
                         var ip = $('<td>'+audits[i].ip+'</td>')
